@@ -26,15 +26,28 @@ function extract_Id_From_Request(req) {
     let parts = req.url.split('/');
     return parseInt(parts[parts.length - 1]);
 }
+function getPayload(req) {
+    return new Promise(resolve => {
+        let body = [];
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+            if (body.length > 0)
+                if (req.headers['content-type'] == "application/json")
+                    try { resolve(JSON.parse(body)); }
+                    catch (error) { console.log(error); }
+            resolve(null);
+        });
+    })
+}
+
 function valideBookmark(bookmark){
     if (!('Title' in bookmark)) return 'Title is missing';
     if (!('Url' in bookmark)) return 'Url is missing';
     if (!('Category' in bookmark)) return 'Category is missing';
     return '';
 }
-async function handleBookmarkServiceRequest(req, res) {
-    if (req.url.includes("/api/Bookmarks"))
-    {
+async function handleBookmarksServiceRequest(req, res) {
+    if (req.url.includes("/api/Bookmarks")){
         const bookmarksFilePath = "./bookmarks.json";
         let bookmarksJSON = fs.readFileSync(bookmarksFilePath);
         let bookmarks = JSON.parse(bookmarksJSON);
@@ -155,24 +168,10 @@ async function handleBookmarkServiceRequest(req, res) {
 }
 
 async function handleRequest(req, res) {
-    if (! await handleBookmarkServiceRequest(req, res))
-        if (! await handleBookmarkServiceRequest(req, res))
+    if (! await handleBookmarksServiceRequest(req, res))
+        if (! await handleBookmarksServiceRequest(req, res))
             return false;
     return true;
-}
-
-function getPayload(req) {
-    return new Promise(resolve => {
-        let body = [];
-        req.on('data', chunk => { body += chunk; });
-        req.on('end', () => {
-            if (body.length > 0)
-                if (req.headers['content-type'] == "application/json")
-                    try { resolve(JSON.parse(body)); }
-                    catch (error) { console.log(error); }
-            resolve(null);
-        });
-    })
 }
 
 const server = createServer(async (req, res) => {
