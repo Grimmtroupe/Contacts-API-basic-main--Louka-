@@ -158,33 +158,33 @@ function renderBookmarkForm(bookmark = null) {
         <form class="form" id="bookmarkForm">
             <input type="hidden" name="Id" value="${bookmark.Id}"/>
 
-            <label for="Name" class="form-label">Titre </label>
+            <label for="Title" class="form-label">Titre </label>
             <input 
                 class="form-control Alpha"
-                name="Name" 
-                id="Name" 
+                name="Title" 
+                id="Title" 
                 placeholder="Nom"
                 required
                 RequireMessage="Veuillez entrer le Titre du site"
                 InvalidMessage="Le nom comporte un caractère illégal" 
                 value="${bookmark.Title}"
             />
-            <label for="Phone" class="form-label">Url </label>
+            <label for="URL" class="form-label">Url </label>
             <input
                 class="form-control URL"
-                name="Phone"
-                id="Phone"
+                name="URL"
+                id="URL"
                 placeholder="https:..."
                 required
                 RequireMessage="Veuillez entrer l'url du site" 
                 InvalidMessage="Veuillez entrer un url valide"
                 value="${bookmark.Url}" 
             />
-            <label for="Email" class="form-label">Catégorie </label>
+            <label for="Category" class="form-label">Catégorie </label>
             <input 
                 class="form-control Alpha"
-                name="Catégorie"
-                id="Catégorie"
+                name="Category"
+                id="Category"
                 placeholder="ex: moteur de recherche"
                 required
                 RequireMessage="Veuillez entrer la catégorie du site" 
