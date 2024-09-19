@@ -26,21 +26,15 @@ function extract_Id_From_Request(req) {
     let parts = req.url.split('/');
     return parseInt(parts[parts.length - 1]);
 }
-function validateContact(contact) {
-    if (!('Name' in contact)) return 'Name is missing';
-    if (!('Phone' in contact)) return 'Phone is missing';
-    if (!('Email' in contact)) return 'Email is missing';
-    return '';
-}
-
-function validateBookmark(bookmark) {
+function valideBookmark(bookmark){
     if (!('Title' in bookmark)) return 'Title is missing';
     if (!('Url' in bookmark)) return 'Url is missing';
     if (!('Category' in bookmark)) return 'Category is missing';
     return '';
 }
-async function handleBookmarksServiceRequest(req, res) {
-    if (req.url.includes("/api/bookmarks")) {
+async function handleBookmarkServiceRequest(req, res) {
+    if (req.url.includes("/api/Bookmarks"))
+    {
         const bookmarksFilePath = "./bookmarks.json";
         let bookmarksJSON = fs.readFileSync(bookmarksFilePath);
         let bookmarks = JSON.parse(bookmarksJSON);
@@ -51,7 +45,8 @@ async function handleBookmarksServiceRequest(req, res) {
                 if (isNaN(id)) {
                     res.writeHead(200, { 'content-type': 'application/json' });
                     res.end(bookmarksJSON);
-                } else {
+                } 
+                else {
                     let found = false;
                     for (let bookmark of bookmarks) {
                         if (bookmark.Id === id) {
@@ -63,32 +58,32 @@ async function handleBookmarksServiceRequest(req, res) {
                     }
                     if (!found) {
                         res.writeHead(404);
-                        res.end(`Error : The bookmark of id ${id} does not exist`);
+                        res.end(`Erreur : l ${id} du bookmark n existe pas`);
                     }
                 }
                 break;
-            case 'POST':
-                let newBookmark = await getPayload(req);
-                validStatus = validateBookmark(newBookmark);
-                if (validStatus == '') {
-                    let maxId = 0;
-                    bookmarks.forEach(bookmark => {
-                        if (bookmark.Id > maxId)
-                            maxId = bookmark.Id;
-                    });
-                    newBookmark.Id = maxId + 1;
-                    bookmarks.push(newBookmark);
-                    fs.writeFileSync(bookmarksFilePath, JSON.stringify(bookmarks));
-                    res.writeHead(201, { 'content-type': 'application/json' });
-                    res.end(JSON.stringify(newBookmark));
-                } else {
-                    res.writeHead(400);
-                    res.end(`Error: ${validStatus}`);
-                }
-                break;
+                case 'POST':
+                    let newBookmark = await getPayload(req);
+                    validStatus = validateBookmark(newBookmark);
+                    if (validStatus == '') {
+                        let maxId = 0;
+                        bookmarks.forEach(bookmark => {
+                            if (bookmark.Id > maxId)
+                                maxId = bookmark.Id;
+                        });
+                        newBookmark.Id = maxId + 1;
+                        bookmarks.push(newBookmark);
+                        fs.writeFileSync(bookmarksFilePath, JSON.stringify(bookmarks));
+                        res.writeHead(201, { 'content-type': 'application/json' });
+                        res.end(JSON.stringify(newBookmark));
+                    } else {
+                        res.writeHead(400);
+                        res.end(`Error: ${validStatus}`);
+                    }
+                    break;
             case 'PUT':
                 let modifiedBookmark = await getPayload(req);
-                validStatus = validateBookmark(modifiedBookmark);
+                validStatus = valideBookmark(modifiedBookmark);
                 if (validStatus == '') {
                     if (!isNaN(id)) {
                         if (!('Id' in modifiedBookmark)) modifiedBookmark.Id = id;
@@ -96,20 +91,20 @@ async function handleBookmarksServiceRequest(req, res) {
                             let storedBookmark = null;
                             for (let bookmark of bookmarks) {
                                 if (bookmark.Id === id) {
-                                    storedBookmark = bookmark;
+                                    storedbookmark = bookmark;
                                     break;
                                 }
                             }
                             if (storedBookmark != null) {
-                                storedBookmark.Title = modifiedBookmark.Title;
-                                storedBookmark.Url = modifiedBookmark.Url;
-                                storedBookmark.Category = modifiedBookmark.Category;
+                                storedBookmark.Title = storedBookmark.Title;
+                                storedBookmark.Url = storedBookmark.Url;
+                                storedBookmark.Category = storedBookmark.Category;
                                 fs.writeFileSync(bookmarksFilePath, JSON.stringify(bookmarks));
                                 res.writeHead(200);
                                 res.end();
                             } else {
                                 res.writeHead(404);
-                                res.end(`Error: The bookmark of id ${id} does not exist.`);
+                                res.end(`Erreur : l ${id} du bookmark n existe pas`);
                             }
                         } else {
                             res.writeHead(409);
@@ -117,7 +112,7 @@ async function handleBookmarksServiceRequest(req, res) {
                         }
                     } else {
                         res.writeHead(400);
-                        res.end("Error : You must provide the id of bookmark to modify.");
+                        res.end("Erreur : pour modifier un favoris vous devez donner un id .");
                     }
                 } else {
                     res.writeHead(400);
@@ -142,11 +137,11 @@ async function handleBookmarksServiceRequest(req, res) {
                         res.end();
                     } else {
                         res.writeHead(404);
-                        res.end(`Error: The bookmark of id ${id} does not exist.`);
+                        res.end(`Erreur : l ${id} du bookmark n existe pas`);
                     }
                 } else {
                     res.writeHead(400);
-                    res.end("Error : You must provide the id of bookmark to delete.");
+                    res.end("Erreur : pour effacer un favoris vous devez donner un id .");
                 }
                 break;
             case 'PATCH':
@@ -159,131 +154,11 @@ async function handleBookmarksServiceRequest(req, res) {
     return false;
 }
 
-
-async function handleContactsServiceRequest(req, res) {
-    if (req.url.includes("/api/contacts")) {
-        const contactsFilePath = "./contacts.json";
-        let contactsJSON = fs.readFileSync(contactsFilePath);
-        let contacts = JSON.parse(contactsJSON);
-        let validStatus = '';
-        let id = extract_Id_From_Request(req);
-        switch (req.method) {
-            case 'GET':
-                if (isNaN(id)) {
-                    res.writeHead(200, { 'content-type': 'application/json' });
-                    res.end(contactsJSON);
-                } else {
-                    let found = false;
-                    for (let contact of contacts) {
-                        if (contact.Id === id) {
-                            found = true;
-                            res.writeHead(200, { 'content-type': 'application/json' });
-                            res.end(JSON.stringify(contact));
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        res.writeHead(404);
-                        res.end(`Error : The contact of id ${id} does not exist`);
-                    }
-                }
-                break;
-            case 'POST':
-                let newContact = await getPayload(req);
-                validStatus = validateContact(newContact);
-                if (validStatus == '') {
-                    let maxId = 0;
-                    contacts.forEach(contact => {
-                        if (contact.Id > maxId)
-                            maxId = contact.Id;
-                    });
-                    newContact.Id = maxId + 1;
-                    contacts.push(newContact);
-                    fs.writeFileSync(contactsFilePath, JSON.stringify(contacts));
-                    res.writeHead(201, { 'content-type': 'application/json' });
-                    res.end(JSON.stringify(newContact));
-                } else {
-                    res.writeHead(400);
-                    res.end(`Error: ${validStatus}`);
-                }
-                break;
-            case 'PUT':
-                let modifiedContact = await getPayload(req);
-                validStatus = validateContact(modifiedContact);
-                if (validStatus == '') {
-                    if (!isNaN(id)) {
-                        if (!('Id' in modifiedContact)) modifiedContact.Id = id;
-                        if (modifiedContact.Id == id) {
-                            let storedContact = null;
-                            for (let contact of contacts) {
-                                if (contact.Id === id) {
-                                    storedContact = contact;
-                                    break;
-                                }
-                            }
-                            if (storedContact != null) {
-                                storedContact.Name = modifiedContact.Name;
-                                storedContact.Phone = modifiedContact.Phone;
-                                storedContact.Email = modifiedContact.Email;
-                                fs.writeFileSync(contactsFilePath, JSON.stringify(contacts));
-                                res.writeHead(200);
-                                res.end();
-                            } else {
-                                res.writeHead(404);
-                                res.end(`Error: The contact of id ${id} does not exist.`);
-                            }
-                        } else {
-                            res.writeHead(409);
-                            res.end(`Error: Conflict of id`);
-                        }
-                    } else {
-                        res.writeHead(400);
-                        res.end("Error : You must provide the id of contact to modify.");
-                    }
-                } else {
-                    res.writeHead(400);
-                    res.end(`Error: ${validStatus}`);
-                }
-                break;
-            case 'DELETE':
-                if (!isNaN(id)) {
-                    let index = 0;
-                    let oneDeleted = false;
-                    for (let contact of contacts) {
-                        if (contact.Id === id) {
-                            contacts.splice(index, 1);
-                            fs.writeFileSync(contactsFilePath, JSON.stringify(contacts));
-                            oneDeleted = true;
-                            break;
-                        }
-                        index++;
-                    }
-                    if (oneDeleted) {
-                        res.writeHead(204); // success no content
-                        res.end();
-                    } else {
-                        res.writeHead(404);
-                        res.end(`Error: The contact of id ${id} does not exist.`);
-                    }
-                } else {
-                    res.writeHead(400);
-                    res.end("Error : You must provide the id of contact to delete.");
-                }
-                break;
-            case 'PATCH':
-                res.writeHead(501);
-                res.end("Error: The endpoint PATCH api/contacts is not implemented.");
-                break;
-        }
-        return true;
-    }
-    return false;
-}
-
 async function handleRequest(req, res) {
-    if(! await handleBookmarksServiceRequest(req,res)) return true
-    if(! await handleContactsServiceRequest(req, res)) return true
-    return false
+    if (! await handleBookmarkServiceRequest(req, res))
+        if (! await handleBookmarkServiceRequest(req, res))
+            return false;
+    return true;
 }
 
 function getPayload(req) {
@@ -300,25 +175,15 @@ function getPayload(req) {
     })
 }
 
-function handleIncomingHttpRequest(req,res){
+const server = createServer(async (req, res) => {
     console.log(req.method, req.url);
     accessControlConfig(req, res);
     if (!CORS_Preflight(req, res))
-        if (!handleRequest(req, res)) {
+        if (!await handleRequest(req, res)) {
             res.writeHead(404);
             res.end();
         }
-}
-
-const server = createServer(async (req,res)=>{
-    console.log(req.method,req.url);
-    accessControlConfig(req, res);
-    if (!CORS_Preflight(req, res))
-        if (! await handleRequest(req, res)) {
-            res.writeHead(404);
-            res.end();
-        }
-    });
+});
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
