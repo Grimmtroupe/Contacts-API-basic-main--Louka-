@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/Bookmarks";
+const API_URL = "http://localhost:5000/api/bookmarks";
 function API_GetBookmarks() {
     return new Promise(resolve => {
         $.ajax({

@@ -40,14 +40,14 @@ function getPayload(req) {
     })
 }
 
-function valideBookmark(bookmark){
+function validateBookmark(bookmark){
     if (!('Title' in bookmark)) return 'Title is missing';
     if (!('Url' in bookmark)) return 'Url is missing';
     if (!('Category' in bookmark)) return 'Category is missing';
     return '';
 }
 async function handleBookmarksServiceRequest(req, res) {
-    if (req.url.includes("/api/Bookmarks")){
+    if (req.url.includes("/api/bookmarks")){
         const bookmarksFilePath = "./bookmarks.json";
         let bookmarksJSON = fs.readFileSync(bookmarksFilePath);
         let bookmarks = JSON.parse(bookmarksJSON);
@@ -96,7 +96,7 @@ async function handleBookmarksServiceRequest(req, res) {
                     break;
             case 'PUT':
                 let modifiedBookmark = await getPayload(req);
-                validStatus = valideBookmark(modifiedBookmark);
+                validStatus = validateBookmark(modifiedBookmark);
                 if (validStatus == '') {
                     if (!isNaN(id)) {
                         if (!('Id' in modifiedBookmark)) modifiedBookmark.Id = id;

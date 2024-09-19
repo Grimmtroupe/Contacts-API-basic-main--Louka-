@@ -114,9 +114,8 @@ async function renderDeleteBookmarkForm(id) {
             <div class="bookmarkRow" bookmark_id=${bookmark.Id}">
                 <div class="bookmarkContainer">
                     <div class="bookmarkLayout">
-                        <div class="bookmarkName">${bookmark.Title}</div>
-                        <div class="bookmarkPhone">${bookmark.Url}</div>
-                        <div class="bookmarkEmail">${bookmark.Category}</div>
+                        <div class="bookmarkTitle">${bookmark.Title}</div>
+                        <div class="bookmarkCategory">${bookmark.Category}</div>
                     </div>
                 </div>  
             </div>   
